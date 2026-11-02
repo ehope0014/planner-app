@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/*
+  Planora design tokens.
+  Colors: ivory paper, linen and beige stationery tones, and a sage family.
+  Type: Italiana (display, like an engraved invitation) + Jost (clean body text).
+*/
+@theme inline {
+  --color-ivory: #fbf8f1;
+  --color-linen: #f3ecdf;
+  --color-beige: #e4d8c4;
+  --color-sage-50: #f0f3eb;
+  --color-sage-100: #e3e9db;
+  --color-sage-300: #b9c5ab;
+  --color-sage-500: #8a9a7b;
+  --color-sage-700: #56644c;
+  --color-sage-900: #343d2f;
+  --color-ink: #2c2f27;
+  --color-muted: #66645a;
+  --color-rose: #9b4f45;
+
+  --font-display: var(--font-italiana), "Didot", "Bodoni 72", Georgia, serif;
+  --font-sans: var(--font-jost), "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 350;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-sage-700);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Stationery-style card: a thin inset rule like a printed invitation */
+.stationery {
+  background: #fff;
+  box-shadow:
+    inset 0 0 0 10px #fff,
+    inset 0 0 0 11px var(--color-beige),
+    0 30px 60px -30px rgba(52, 61, 47, 0.28);
+}
+
+/* The one page-load moment: the hero branch draws itself in */
+.sprig-draw path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sprig-draw 2.4s cubic-bezier(0.55, 0.1, 0.25, 1) forwards;
+}
+.sprig-draw path:nth-child(n + 2) { animation-delay: 0.5s; }
+.sprig-draw path:nth-child(n + 8) { animation-delay: 0.8s; }
+.sprig-draw path:nth-child(n + 14) { animation-delay: 1.1s; }
+.sprig-draw path:nth-child(n + 20) { animation-delay: 1.4s; }
+
+@keyframes sprig-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .sprig-draw path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
