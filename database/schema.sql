@@ -48,6 +48,14 @@ CREATE TABLE IF NOT EXISTS events (
 );
 CREATE INDEX IF NOT EXISTS events_user_id_idx ON events(user_id);
 
+-- AI plan generations, used to cap how many plans one account can create per day
+CREATE TABLE IF NOT EXISTS ai_generations (
+  id          bigserial PRIMARY KEY,
+  user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS ai_generations_user_idx ON ai_generations(user_id, created_at);
+
 -- Demo account for grading: premium access, no email verification.
 INSERT INTO users (email, password_hash, name, plan, is_demo)
 VALUES ('demo@demo.com', crypt('password123!', gen_salt('bf', 10)), 'Demo Host', 'premium', true)

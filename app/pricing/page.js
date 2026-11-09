@@ -11,7 +11,7 @@ const questions = [
   },
   {
     q: "Can I try Planora before paying?",
-    a: "Yes. The Basic plan is free and includes a personalized checklist and budget breakdown. Upgrade only if you want the full timeline and progress tracking.",
+    a: "Yes. The Basic plan is free and includes a personalized checklist, a budget breakdown and check-offs on your dashboard. Upgrade only if you want the dated timeline and fresh plans on demand.",
   },
   {
     q: "Can I upgrade an event I’ve already started?",

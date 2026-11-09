@@ -1,16 +1,16 @@
 import Link from "next/link";
 
 const free = [
-  "One event at a time",
   "Personalized planning checklist",
   "Budget split across venue, food, decor and more",
+  "Saved to your dashboard, with check-offs",
 ];
 
 const premium = [
   "Everything in Basic",
-  "Week-by-week timeline with deadlines",
-  "Check off tasks and track your progress",
-  "Regenerate and fine-tune your plan anytime",
+  "Timeline with a deadline for every task",
+  "Catch-up dates if you start planning late",
+  "Regenerate your plan anytime",
 ];
 
 function Check({ className = "" }) {

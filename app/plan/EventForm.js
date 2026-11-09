@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { createEvent } from "@/app/actions/events";
 import { EVENT_TYPES, LIMITS, minEventDate, validateEvent } from "@/lib/validateEvent";
 
 const empty = { eventType: "", eventDate: "", guestCount: "", budget: "", theme: "" };
@@ -30,25 +30,21 @@ function Field({ id, label, hint, error, children }) {
   );
 }
 
-function formatDate(iso) {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 export default function EventForm() {
   const [values, setValues] = useState(empty);
   const [errors, setErrors] = useState({});
-  const [submitted, setSubmitted] = useState(null);
   const [minDate, setMinDate] = useState(undefined);
+  const [state, formAction, pending] = useActionState(createEvent, { error: null });
 
   // Set the earliest allowed date using the visitor's own clock
   useEffect(() => {
     setMinDate(minEventDate());
   }, []);
+
+  // Show any problems the server found (it re-checks everything)
+  useEffect(() => {
+    if (state?.errors) setErrors(state.errors);
+  }, [state]);
 
   function update(event) {
     const { name, value } = event.target;
@@ -58,17 +54,17 @@ export default function EventForm() {
     }
   }
 
+  // Check in the browser first for instant feedback; only valid forms are sent
   function handleSubmit(event) {
-    event.preventDefault();
     const result = validateEvent(values);
     if (!result.ok) {
+      event.preventDefault();
       setErrors(result.errors);
       const firstInvalid = Object.keys(result.errors)[0];
       document.getElementById(firstInvalid)?.focus();
       return;
     }
     setErrors({});
-    setSubmitted(result.data);
   }
 
   function describedBy(name, hasHint) {
@@ -80,59 +76,12 @@ export default function EventForm() {
 
   const border = (name) => (errors[name] ? "border-rose" : "border-beige");
 
-  if (submitted) {
-    return (
-      <div className="stationery rounded-sm px-8 py-10 sm:px-12" role="status">
-        <h2 className="font-display text-4xl text-sage-900">Your event details are ready.</h2>
-        <dl className="mt-8 grid gap-x-10 gap-y-5 sm:grid-cols-2">
-          <div>
-            <dt className="text-sm text-muted">Event</dt>
-            <dd className="text-lg text-ink">{submitted.eventType}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted">Date</dt>
-            <dd className="text-lg text-ink">{formatDate(submitted.eventDate)}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted">Guests</dt>
-            <dd className="text-lg text-ink">{submitted.guestCount.toLocaleString()}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted">Budget</dt>
-            <dd className="text-lg text-ink">
-              {submitted.budget.toLocaleString("en-US", { style: "currency", currency: "USD" })}
-            </dd>
-          </div>
-          {submitted.theme && (
-            <div className="sm:col-span-2">
-              <dt className="text-sm text-muted">Theme</dt>
-              <dd className="text-lg text-ink">{submitted.theme}</dd>
-            </div>
-          )}
-        </dl>
-        <p className="mt-8 rounded-xl bg-sage-50 px-5 py-4 text-sage-900">
-          Personalized plan generation is coming to Planora soon. Your details haven’t been saved yet.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-4">
-          <button
-            type="button"
-            onClick={() => setSubmitted(null)}
-            className="rounded-full border border-sage-700 px-6 py-3 font-medium text-sage-900 hover:bg-sage-50"
-          >
-            Edit details
-          </button>
-          <Link href="/dashboard" className="rounded-full px-6 py-3 font-medium text-sage-900 underline decoration-sage-300 underline-offset-[6px]">
-            Go to dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <form
       noValidate
+      action={formAction}
       onSubmit={handleSubmit}
+      aria-busy={pending}
       className="space-y-8 rounded-3xl border border-beige bg-white p-6 sm:p-10"
     >
       <Field id="eventType" label="What are you celebrating?" error={errors.eventType}>
@@ -251,12 +200,26 @@ export default function EventForm() {
         </p>
       </Field>
 
-      <button
-        type="submit"
-        className="w-full rounded-full bg-sage-700 px-8 py-4 font-medium text-ivory transition-colors hover:bg-sage-900 sm:w-auto"
-      >
-        Create my plan
-      </button>
+      {state?.error && (
+        <p role="alert" className="rounded-xl bg-rose/10 px-4 py-3 text-rose">
+          {state.error}
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <button
+          type="submit"
+          disabled={pending}
+          className="w-full rounded-full bg-sage-700 px-8 py-4 font-medium text-ivory transition-colors hover:bg-sage-900 disabled:cursor-wait disabled:opacity-70 sm:w-auto"
+        >
+          {pending ? "Planning your celebration…" : "Create my plan"}
+        </button>
+        <p className="text-sm text-muted" aria-live="polite">
+          {pending
+            ? "Writing your checklist, budget and timeline. This takes about 20 seconds."
+            : "Your plan is saved to your dashboard."}
+        </p>
+      </div>
     </form>
   );
 }
