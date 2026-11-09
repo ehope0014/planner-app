@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import Sprig from "@/components/Sprig";
+import { getCurrentUser } from "@/lib/auth";
 
 export const metadata = {
   title: "Dashboard",
@@ -23,13 +25,28 @@ function Panel({ id, title, children }) {
   );
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/dashboard");
+
+  const isPremium = user.plan === "premium";
+  const firstName = user.name.split(" ")[0];
+
   return (
     <div className="mx-auto max-w-6xl px-5 pb-10 pt-12 sm:px-8 md:pt-16">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <h1 className="font-display text-5xl text-sage-900 md:text-6xl">Your dashboard</h1>
-          <p className="mt-3 text-lg text-muted">Every event you plan with Planora lives here.</p>
+          <h1 className="font-display text-5xl text-sage-900 md:text-6xl">Hello, {firstName}.</h1>
+          <p className="mt-3 flex flex-wrap items-center gap-3 text-lg text-muted">
+            Every event you plan with Planora lives here.
+            <span
+              className={`rounded-full px-3 py-0.5 text-sm font-medium ${
+                isPremium ? "bg-sage-900 text-ivory" : "border border-sage-300 text-sage-900"
+              }`}
+            >
+              {isPremium ? "Premium" : "Basic plan"}
+            </span>
+          </p>
         </div>
         <Link
           href="/plan"
@@ -40,7 +57,7 @@ export default function DashboardPage() {
       </div>
 
       <p className="mt-8 rounded-xl bg-sage-50 px-5 py-4 text-sage-900">
-        Preview: sign-in and saved events are being added next. Nothing on this page is stored yet.
+        You’re signed in as {user.email}. Saving events to this dashboard is coming in the next update.
       </p>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[13rem_1fr]">

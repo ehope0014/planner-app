@@ -9,7 +9,8 @@ engagement parties, graduation parties and other celebrations.
 
 - Next.js (App Router) and React
 - Tailwind CSS
-- Coming next: Neon PostgreSQL, authentication, AI plan generation, Stripe
+- Neon PostgreSQL (database), password login with secure sessions
+- Coming next: AI plan generation, saved events, Stripe
 
 ## Project map
 
@@ -22,12 +23,15 @@ engagement parties, graduation parties and other celebrations.
 | `app/globals.css` | Colors, fonts and global styles |
 | `components/` | Navigation, footer, logo, pricing cards, illustration |
 | `lib/validateEvent.js` | Form validation (will also run on the server) |
+| `app/login`, `app/signup`, `app/actions/auth.js` | Accounts: log in, sign up, log out |
+| `lib/auth.js`, `lib/db.js` | Sessions, password checks, database connection |
+| `database/schema.sql` | Database tables and the demo account (run once in Neon) |
 | `.env.example` | Names of secret settings needed later. No real values. |
 
 ## Build stages
 
 1. Week 1 MVP: homepage, navigation, pricing, event form, dashboard layout ✅
-2. Accounts: sign up, log in, log out, demo account, Neon database
+2. Accounts: sign up, log in, log out, demo account, Neon database ✅
 3. AI: personalized checklist, budget split, timeline
 4. Saved events: dashboard with check-offs, each user sees only their own events
 5. Payments: Stripe checkout for Premium ($4.99 per event)

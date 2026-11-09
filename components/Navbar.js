@@ -4,14 +4,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
+import { logout } from "@/app/actions/auth";
 
-const links = [
+const publicLinks = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/dashboard", label: "Dashboard" },
 ];
 
-export default function Navbar() {
+function LogoutButton({ className }) {
+  return (
+    <form action={logout}>
+      <button type="submit" className={className}>
+        Log out
+      </button>
+    </form>
+  );
+}
+
+export default function Navbar({ user }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -19,6 +29,10 @@ export default function Navbar() {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  const links = user ? [...publicLinks, { href: "/dashboard", label: "Dashboard" }] : publicLinks;
+  const linkClass =
+    "text-[0.95rem] text-muted transition-colors hover:text-sage-900 aria-[current=page]:text-sage-900";
 
   return (
     <header className="sticky top-0 z-40 border-b border-beige/70 bg-ivory/90 backdrop-blur-md">
@@ -28,23 +42,41 @@ export default function Navbar() {
       >
         <Logo />
 
-        <div className="hidden items-center gap-9 md:flex">
+        <div className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               aria-current={pathname === link.href ? "page" : undefined}
-              className="text-[0.95rem] text-muted transition-colors hover:text-sage-900 aria-[current=page]:text-sage-900"
+              className={linkClass}
             >
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/plan"
-            className="rounded-full bg-sage-700 px-5 py-2.5 text-[0.95rem] font-medium text-ivory transition-colors hover:bg-sage-900"
-          >
-            Get started
-          </Link>
+
+          {user ? (
+            <>
+              <LogoutButton className={linkClass} />
+              <Link
+                href="/plan"
+                className="rounded-full bg-sage-700 px-5 py-2.5 text-[0.95rem] font-medium text-ivory transition-colors hover:bg-sage-900"
+              >
+                Plan an event
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link href="/login" aria-current={pathname === "/login" ? "page" : undefined} className={linkClass}>
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-full bg-sage-700 px-5 py-2.5 text-[0.95rem] font-medium text-ivory transition-colors hover:bg-sage-900"
+              >
+                Get started
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -56,11 +88,7 @@ export default function Navbar() {
         >
           <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
-            {open ? (
-              <path d="M5 5l12 12M17 5L5 17" />
-            ) : (
-              <path d="M3 7h16M3 15h16" />
-            )}
+            {open ? <path d="M5 5l12 12M17 5L5 17" /> : <path d="M3 7h16M3 15h16" />}
           </svg>
         </button>
       </nav>
@@ -68,21 +96,29 @@ export default function Navbar() {
       {open && (
         <div id="mobile-menu" className="border-t border-beige/70 bg-ivory md:hidden">
           <div className="mx-auto flex max-w-6xl flex-col px-5 py-4">
+            {user && <p className="pb-2 text-sm text-muted">Signed in as {user.name}</p>}
             {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="border-b border-beige/50 py-3.5 text-lg text-ink"
-              >
+              <Link key={link.href} href={link.href} className="border-b border-beige/50 py-3.5 text-lg text-ink">
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/plan"
-              className="mt-5 rounded-full bg-sage-700 px-5 py-3 text-center font-medium text-ivory"
-            >
-              Get started
-            </Link>
+            {user ? (
+              <>
+                <LogoutButton className="w-full border-b border-beige/50 py-3.5 text-left text-lg text-ink" />
+                <Link href="/plan" className="mt-5 rounded-full bg-sage-700 px-5 py-3 text-center font-medium text-ivory">
+                  Plan an event
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="border-b border-beige/50 py-3.5 text-lg text-ink">
+                  Log in
+                </Link>
+                <Link href="/signup" className="mt-5 rounded-full bg-sage-700 px-5 py-3 text-center font-medium text-ivory">
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
