@@ -68,8 +68,9 @@ export default function PricingPlans() {
           href="/plan"
           className="mt-10 rounded-full bg-ivory px-6 py-3 text-center font-medium text-sage-900 transition-colors hover:bg-linen"
         >
-          Plan with Premium
+          Start planning
         </Link>
+        <p className="mt-3 text-center text-sm text-sage-100/70">Upgrade any event from its plan page.</p>
       </div>
     </div>
   );

@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { findOwnedEvent } from "@/lib/events";
 import { daysUntil, formatEventDate, todayInNewYork } from "@/lib/planMath";
+import { confirmCheckout, confirmPendingPurchases, premiumPriceLabel } from "@/lib/stripe";
+import UpgradeButton from "@/components/UpgradeButton";
 import EventPlanner from "./EventPlanner";
 import EventActions from "./EventActions";
 
@@ -28,15 +30,42 @@ function countdown(days) {
   return `In ${days} days`;
 }
 
-export default async function EventPage({ params }) {
+const NOTICES = {
+  upgraded: { tone: "success", text: "Payment received. This event is now Premium, and your timeline is unlocked." },
+  pending: { tone: "info", text: "We’re still confirming your payment with Stripe. Refresh this page in a moment." },
+  cancelled: { tone: "info", text: "Checkout cancelled. You weren’t charged." },
+  error: { tone: "error", text: "We couldn’t open checkout just now. Please try again in a minute." },
+};
+
+export default async function EventPage({ params, searchParams }) {
   const { id } = await params;
+  const query = await searchParams;
   const user = await getCurrentUser();
   if (!user) redirect(`/login?next=/events/${encodeURIComponent(id)}`);
 
   const event = await findOwnedEvent(id, user.id);
   if (!event || !event.plan) notFound();
 
+  // Coming back from Stripe: confirm the payment with Stripe before unlocking
+  let notice = NOTICES[query?.checkout === "cancelled" ? "cancelled" : query?.checkout === "error" ? "error" : ""];
+  if (query?.upgraded === "1") notice = NOTICES.upgraded;
+
+  if (!event.is_premium && user.plan !== "premium") {
+    let unlocked = false;
+    try {
+      unlocked =
+        query?.checkout === "success" && typeof query.session_id === "string"
+          ? await confirmCheckout(query.session_id, user.id, event.id)
+          : await confirmPendingPurchases(user.id, event.id);
+    } catch (error) {
+      console.error("Could not confirm checkout:", error);
+    }
+    if (unlocked) redirect(`/events/${event.id}?upgraded=1`);
+    if (query?.checkout === "success") notice = NOTICES.pending;
+  }
+
   const isPremium = event.is_premium || user.plan === "premium";
+  const priceLabel = premiumPriceLabel();
   const plan = event.plan;
   const days = daysUntil(event.event_date, todayInNewYork());
   const budgetCentsShown = plan.budget.some((item) => !Number.isInteger(item.amount));
@@ -51,6 +80,21 @@ export default async function EventPage({ params }) {
       <Link href="/dashboard" className="text-muted hover:text-sage-900">
         ‹ All events
       </Link>
+
+      {notice && (
+        <p
+          role="status"
+          className={`mt-6 rounded-xl px-5 py-4 ${
+            notice.tone === "success"
+              ? "bg-sage-900 text-ivory"
+              : notice.tone === "error"
+                ? "bg-rose/10 text-rose"
+                : "bg-sage-50 text-sage-900"
+          }`}
+        >
+          {notice.text}
+        </p>
+      )}
 
       <header className="mt-6 border-b border-beige pb-10">
         <div className="flex flex-wrap items-center gap-3">
@@ -87,9 +131,24 @@ export default async function EventPage({ params }) {
           eventDate={event.event_date}
           initialTasks={tasks}
           isPremium={isPremium}
+          upgrade={isPremium ? null : <UpgradeButton eventId={event.id} priceLabel={priceLabel} />}
         />
 
         <aside className="space-y-8 lg:sticky lg:top-28 lg:self-start">
+          {!isPremium && (
+            <section aria-labelledby="upgrade-title" className="rounded-3xl bg-sage-900 px-7 py-8 text-ivory">
+              <h2 id="upgrade-title" className="font-display text-2xl">Upgrade this event</h2>
+              <p className="mt-2 text-sage-100/85">
+                Get a deadline for every task and fresh plans anytime. {priceLabel} once, no subscription.
+              </p>
+              <UpgradeButton
+                eventId={event.id}
+                priceLabel={priceLabel}
+                className="mt-5 w-full bg-ivory text-sage-900 hover:bg-linen"
+              />
+              <p className="mt-3 text-center text-sm text-sage-100/70">Secure payment by Stripe</p>
+            </section>
+          )}
           <section aria-labelledby="budget-title" className="stationery rounded-sm px-7 py-9">
             <div className="flex items-baseline justify-between gap-4">
               <h2 id="budget-title" className="font-display text-3xl text-sage-900">Budget</h2>

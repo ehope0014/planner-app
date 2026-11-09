@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useTransition } from "react";
 import { toggleTask } from "@/app/actions/events";
 import { TASK_CATEGORIES, TIMELINE_PHASES, formatEventDate, timelinePhase } from "@/lib/planMath";
@@ -32,7 +31,7 @@ function TaskRow({ task, onToggle, showDate }) {
   );
 }
 
-export default function EventPlanner({ eventId, eventDate, initialTasks, isPremium }) {
+export default function EventPlanner({ eventId, eventDate, initialTasks, isPremium, upgrade }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [saveError, setSaveError] = useState(false);
   const [, startTransition] = useTransition();
@@ -133,12 +132,7 @@ export default function EventPlanner({ eventId, eventDate, initialTasks, isPremi
               Premium turns this checklist into a dated timeline counted back from your event, and lets you
               regenerate your plan anytime.
             </p>
-            <Link
-              href="/pricing"
-              className="mt-6 inline-block rounded-full bg-sage-700 px-6 py-3 font-medium text-ivory hover:bg-sage-900"
-            >
-              See Premium
-            </Link>
+            <div className="mt-6">{upgrade}</div>
           </div>
         )}
       </section>

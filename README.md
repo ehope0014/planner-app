@@ -11,7 +11,7 @@ engagement parties, graduation parties and other celebrations.
 - Tailwind CSS
 - Neon PostgreSQL (database), password login with secure sessions
 - Claude Haiku 5.5 (Anthropic API) for plan generation, called only from the server
-- Coming next: Stripe
+- Stripe Checkout, with every payment confirmed directly with Stripe before an event is unlocked
 
 ## Project map
 
@@ -28,6 +28,7 @@ engagement parties, graduation parties and other celebrations.
 | `lib/auth.js`, `lib/db.js` | Sessions, password checks, database connection |
 | `lib/ai.js`, `lib/planMath.js` | AI request, and the logic that checks its output (exact budget totals, task dates) |
 | `app/actions/events.js`, `app/events/` | Creating, saving, checking off and deleting events |
+| `lib/stripe.js`, `app/actions/billing.js` | Stripe checkout and payment confirmation |
 | `database/schema.sql` | Database tables and the demo account (run once in Neon) |
 | `.env.example` | Names of secret settings needed later. No real values. |
 
@@ -37,7 +38,7 @@ engagement parties, graduation parties and other celebrations.
 2. Accounts: sign up, log in, log out, demo account, Neon database ✅
 3. AI: personalized checklist, budget split, timeline ✅
 4. Saved events: dashboard with check-offs, each user sees only their own events ✅
-5. Payments: Stripe checkout for Premium ($4.99 per event)
+5. Payments: Stripe checkout for Premium ($4.99 per event) ✅
 
 ## Security rules for this project
 

@@ -56,6 +56,19 @@ CREATE TABLE IF NOT EXISTS ai_generations (
 );
 CREATE INDEX IF NOT EXISTS ai_generations_user_idx ON ai_generations(user_id, created_at);
 
+-- Stripe purchases: one row per checkout, so every payment is traceable
+CREATE TABLE IF NOT EXISTS purchases (
+  id                 bigserial PRIMARY KEY,
+  user_id            uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  event_id           uuid REFERENCES events(id) ON DELETE SET NULL,
+  stripe_session_id  text NOT NULL UNIQUE,
+  amount_cents       integer NOT NULL,
+  status             text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'expired')),
+  created_at         timestamptz NOT NULL DEFAULT now(),
+  paid_at            timestamptz
+);
+CREATE INDEX IF NOT EXISTS purchases_event_idx ON purchases(event_id, status);
+
 -- Demo account for grading: premium access, no email verification.
 INSERT INTO users (email, password_hash, name, plan, is_demo)
 VALUES ('demo@demo.com', crypt('password123!', gen_salt('bf', 10)), 'Demo Host', 'premium', true)
