@@ -72,7 +72,9 @@ export default async function EventPage({ params, searchParams }) {
 
   // Basic plans get the checklist without dates; the dated timeline is Premium
   const tasks = plan.tasks.map((task) =>
-    isPremium ? task : { id: task.id, title: task.title, detail: task.detail, category: task.category, done: task.done }
+    isPremium
+      ? task
+      : { id: task.id, title: task.title, detail: task.detail, category: task.category, done: task.done, custom: task.custom }
   );
 
   return (
@@ -130,6 +132,7 @@ export default async function EventPage({ params, searchParams }) {
           eventId={event.id}
           eventDate={event.event_date}
           initialTasks={tasks}
+          initialVenues={plan.venues ?? null}
           isPremium={isPremium}
           upgrade={isPremium ? null : <UpgradeButton eventId={event.id} priceLabel={priceLabel} />}
         />

@@ -1,6 +1,15 @@
 import Link from "next/link";
 import Sprig from "@/components/Sprig";
 import PricingPlans from "@/components/PricingPlans";
+import EventPhoto from "@/components/EventPhoto";
+import { testimonials } from "@/lib/testimonials";
+
+// Photos live in public/images. Replace these files to change the pictures.
+const photos = [
+  { src: "/images/event-1.jpg", alt: "Friends laughing around a dinner table at a backyard party", caption: "Backyard birthdays" },
+  { src: "/images/event-2.jpg", alt: "A table set with flowers and place settings for a shower", caption: "Showers and brunches" },
+  { src: "/images/event-3.jpg", alt: "Graduates celebrating with family", caption: "Graduation parties" },
+];
 
 const steps = [
   {
@@ -29,6 +38,14 @@ const features = [
   {
     title: "A timeline that counts back from the day",
     text: "Each task gets a deadline based on your date, so you know what to book this week and what can wait.",
+  },
+  {
+    title: "Venues near you",
+    text: "Enter your town and get venue ideas that fit your guest count and venue budget, with a map link for each.",
+  },
+  {
+    title: "A plan you can make your own",
+    text: "Add your own tasks, remove the ones you don’t need, and keep everything in a single checklist.",
   },
   {
     title: "Everything in one place",
@@ -180,6 +197,25 @@ export default function HomePage() {
         </ul>
       </section>
 
+      {/* Photos of real celebrations */}
+      <section aria-labelledby="gallery-title">
+        <div className="mx-auto max-w-6xl px-5 pt-24 sm:px-8 md:pt-32">
+          <h2 id="gallery-title" className="max-w-2xl font-display text-5xl leading-tight text-sage-900 md:text-6xl">
+            Made for the moments people remember.
+          </h2>
+          <ul className="mt-12 grid gap-5 sm:grid-cols-3">
+            {photos.map((photo, i) => (
+              <li key={photo.src} className={i === 1 ? "sm:mt-12" : ""}>
+                <figure>
+                  <EventPhoto src={photo.src} alt={photo.alt} className="aspect-[4/5] w-full rounded-[1.5rem]" />
+                  <figcaption className="mt-3 font-display text-2xl text-sage-700">{photo.caption}</figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* How it works */}
       <section id="how-it-works" className="scroll-mt-24">
         <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8 md:py-32">
@@ -222,6 +258,31 @@ export default function HomePage() {
           </dl>
         </div>
       </section>
+
+      {/* Testimonials (shown once real ones are added in lib/testimonials.js) */}
+      {testimonials.length > 0 && (
+        <section aria-labelledby="testimonials-title" className="bg-linen">
+          <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8 md:py-32">
+            <h2 id="testimonials-title" className="font-display text-5xl leading-tight text-sage-900 md:text-6xl">
+              From hosts who’ve used it.
+            </h2>
+            <ul className="mt-14 grid gap-6 md:grid-cols-3">
+              {testimonials.map((item) => (
+                <li key={item.name + item.quote.slice(0, 20)}>
+                  <figure className="stationery flex h-full flex-col rounded-sm px-8 py-9">
+                    <span aria-hidden="true" className="font-display text-6xl leading-none text-sage-300">“</span>
+                    <blockquote className="mt-1 flex-1 text-lg leading-relaxed text-ink">{item.quote}</blockquote>
+                    <figcaption className="mt-6 border-t border-beige pt-4">
+                      <span className="block font-medium text-sage-900">{item.name}</span>
+                      {item.event && <span className="block text-sm text-muted">{item.event}</span>}
+                    </figcaption>
+                  </figure>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* Pricing */}
       <section id="pricing" className="scroll-mt-24">

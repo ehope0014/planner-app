@@ -1,0 +1,8 @@
+Put 3 photos in this folder, named exactly:
+
+  event1.jpg   (shown with the caption "Backyard birthdays")
+  event2.jpg   (shown with the caption "Showers and brunches")
+  event3.jpg   (shown with the caption "Graduation parties")
+
+Free photos you're allowed to use: https://unsplash.com or https://www.pexels.com
+Tall (portrait) photos look best. Keep each one under about 500 KB.
