@@ -6,9 +6,9 @@ import { testimonials } from "@/lib/testimonials";
 
 // Photos live in public/images. Replace these files to change the pictures.
 const photos = [
-  { src: "/images/event-1.jpg", alt: "Friends laughing around a dinner table at a backyard party", caption: "Backyard birthdays" },
-  { src: "/images/event-2.jpg", alt: "A table set with flowers and place settings for a shower", caption: "Showers and brunches" },
-  { src: "/images/event-3.jpg", alt: "Graduates celebrating with family", caption: "Graduation parties" },
+  { src: "/images/event1.jpg", alt: "Friends laughing around a dinner table at a backyard party", caption: "Backyard birthdays" },
+  { src: "/images/event2.jpg", alt: "A table set with flowers and place settings for a shower", caption: "Showers and brunches" },
+  { src: "/images/event3.jpg", alt: "Graduates celebrating with family", caption: "Graduation parties" },
 ];
 
 const steps = [
